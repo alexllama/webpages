@@ -121,6 +121,7 @@
       position: relative;
       border: 1px solid rgba(217, 119, 6, 0.4);
       z-index: 30;
+      flex-shrink: 0;
     }
 
     .info-icon .tooltip {
@@ -193,11 +194,6 @@
       visibility: visible;
       opacity: 1;
     }
-
-    /* Smooth fade transition for cycling world city display */
-    .city-fade {
-      transition: opacity 0.6s ease-in-out;
-    }
   </style>
 </head>
 
@@ -205,28 +201,45 @@
 
   <!-- Top Bar Header -->
   <header class="glass-panel px-4 py-2 flex items-center justify-between border-b border-amber-500/30">
-    <div class="flex items-center gap-4">
-      <div class="flex flex-col">
-        <a href="https://www.vacheron-constantin.com/ww/en/watches/exceptional-timepieces/cabinotiers-solaria.html" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
-          <h1 class="font-display text-lg tracking-wider gold-gradient-text leading-tight">VACHERON CONSTANTIN</h1>
-          <span class="text-[10px] font-serifHeading tracking-[0.2em] text-amber-200/70 uppercase">Les Cabinotiers Solaria Ultra Grande Complication • La Première ↗</span>
-        </a>
-      </div>
-      <div class="h-8 w-[1px] bg-amber-500/20 mx-1"></div>
-      <div class="flex flex-col text-xs">
-        <span class="font-mono text-cyanGlow font-semibold flex items-center gap-1.5">
+    <!-- Top-Left Area: Vacheron Constantin alone on the left, vertical divider, then clean 2-line subtitle -->
+    <div class="flex items-center gap-3">
+      <a href="https://www.vacheron-constantin.com/ww/en/watches/exceptional-timepieces/cabinotiers-solaria.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <h1 class="font-display text-base tracking-wider gold-gradient-text leading-none whitespace-nowrap">VACHERON CONSTANTIN</h1>
+        <div class="h-6 w-[1px] bg-amber-500/30 flex-shrink-0"></div>
+        <span class="text-[10px] font-serifHeading tracking-[0.12em] text-amber-200/80 uppercase leading-tight whitespace-nowrap">
+          Les Cabinotiers Solaria Ultra<br>Grande Complication • La Première ↗
+        </span>
+      </a>
+
+      <div class="h-8 w-[1px] bg-amber-500/20 mx-1 flex-shrink-0"></div>
+
+      <!-- Station Context -->
+      <div class="flex flex-col text-xs flex-shrink-0">
+        <span class="font-mono text-cyanGlow font-semibold flex items-center gap-1.5 text-[11px]">
           <span class="inline-block w-2 h-2 rounded-full bg-cyanGlow pulse-dot animate-pulse"></span>
           HAMLIN, NY (43.2884° N, 77.9395° W)
         </span>
-        <span class="text-[10px] text-slate-400 font-mono">Reference Station • Eastern Time</span>
+        <span class="text-[9px] text-slate-400 font-mono leading-none mt-0.5">Reference Station • Eastern Time</span>
       </div>
     </div>
 
-    <!-- Complications Directory Trigger Button -->
-    <button id="complicationsBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-mono text-xs transition-all cursor-pointer shadow-lg hover:border-amber-400">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      Complications Directory
-    </button>
+    <!-- Right Controls: Tourbillon Animation directly to the left of the Complications button -->
+    <div class="flex items-center gap-3">
+      <!-- Live Tourbillon Animation Widget -->
+      <div class="flex items-center gap-2 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-amber-500/30" title="3Hz (21,600 vph) Silicon Balance Tourbillon Escapement">
+        <canvas id="headerTourbillonCanvas" width="32" height="32" class="w-8 h-8 flex-shrink-0 tourbillon-canvas"></canvas>
+        <div class="flex flex-col text-left">
+          <span class="text-[8px] font-mono tracking-wider text-amber-400 uppercase leading-none">REGULATOR</span>
+          <span class="text-[10px] font-mono font-bold text-slate-200 leading-tight">3Hz 21.6k</span>
+        </div>
+      </div>
+
+      <!-- Complications Button -->
+      <button id="complicationsBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-mono text-xs transition-all cursor-pointer shadow-lg hover:border-amber-400 whitespace-nowrap">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Complications
+      </button>
+    </div>
   </header>
 
   <main class="grid grid-cols-12 grid-rows-12 gap-3 h-full min-h-0 overflow-hidden">
@@ -240,7 +253,7 @@
           <span class="text-xs font-mono tracking-widest text-amber-400/80 uppercase flex items-center gap-1.5">
             Civil Mean Time
             <i class="info-icon">i
-              <span class="tooltip tooltip-bottom-center">Primary 24-hour civil clock for Hamlin, NY displayed with sub-second precision alongside a world city timezone cycling every 5 seconds.</span>
+              <span class="tooltip tooltip-bottom-center">Primary 24-hour civil time for Hamlin, NY displayed with sub-second precision alongside rotating world time zones.</span>
             </i>
           </span>
           <span id="dayNightBadge" class="px-2 py-0.5 text-[10px] font-mono rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">DAYLIGHT</span>
@@ -252,11 +265,11 @@
           </div>
         </div>
 
-        <!-- Cycling World City Timezone Display (Cycles through 24 reference cities every 5s with fade) -->
-        <div id="cityDisplayContainer" class="grid grid-cols-2 gap-2 text-[10px] font-mono bg-slate-950/60 p-2 rounded-md border border-slate-800 city-fade opacity-100">
+        <!-- Rotating 2nd City Timezone Display -->
+        <div class="grid grid-cols-2 gap-2 text-[10px] font-mono bg-slate-950/60 p-2 rounded-md border border-slate-800">
           <div>
             <span id="secondZoneLabel" class="text-slate-400 block truncate">Perth</span>
-            <span id="secondTimeZone" class="text-slate-200 font-semibold">00:00:00</span>
+            <span id="secondTimeZone" class="text-slate-200 font-semibold">00:00:00 AWST</span>
           </div>
           <div>
             <span id="secondZoneOffset" class="text-slate-400 block">Phase & Offset</span>
@@ -266,34 +279,33 @@
       </div>
 
       <!-- Gregorian Perpetual Calendar -->
-      <div class="glass-panel p-3.5 flex flex-col justify-between">
-        <div class="flex justify-between items-center border-b border-amber-500/20 pb-1.5 mb-1.5">
+      <div class="glass-panel p-3 flex flex-col justify-between">
+        <div class="flex justify-between items-center border-b border-amber-500/20 pb-1 mb-1">
           <span class="text-xs font-mono tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
             Perpetual Calendar
             <i class="info-icon">i
               <span class="tooltip tooltip-bottom-center">Tracks day, date, month, leap-year cycle, and ISO 8601 week numbers without manual adjustment through the year 2100.</span>
             </i>
           </span>
-          <span id="leapYearBadge" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">YEAR 2</span>
+          <span id="leapYearBadge" class="px-2 py-0.5 text-[9px] font-mono font-bold rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">YEAR 2</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 my-1 text-center">
-          <div class="bg-slate-950/50 p-1.5 rounded-lg border border-slate-800">
-            <span class="text-[9px] font-mono text-slate-400 block uppercase">Day of Week</span>
-            <span id="calDayOfWeek" class="font-serifHeading text-sm font-bold text-slate-100 uppercase">SUNDAY</span>
+        <div class="grid grid-cols-3 gap-1.5 my-1 text-center">
+          <div class="bg-slate-950/50 p-1.5 rounded-lg border border-slate-800 flex flex-col justify-center">
+            <span class="text-[8px] font-mono text-slate-400 block uppercase">Day</span>
+            <span id="calDayOfWeek" class="font-serifHeading text-xs font-bold text-slate-100 uppercase truncate">SUNDAY</span>
           </div>
-          <div class="bg-slate-950/50 p-1.5 rounded-lg border border-slate-800">
-            <span class="text-[9px] font-mono text-slate-400 block uppercase">Month & Year</span>
-            <span id="calMonthYear" class="font-serifHeading text-sm font-bold text-slate-100 uppercase">OCT 2026</span>
+          <div class="bg-slate-950/50 p-1.5 rounded-lg border border-slate-800 flex flex-col justify-center">
+            <span class="text-[8px] font-mono text-slate-400 block uppercase">Date</span>
+            <span id="calDateNumeric" class="font-serifHeading text-xl font-bold text-slate-100 tracking-tight">04</span>
+          </div>
+          <div class="bg-slate-950/50 p-1.5 rounded-lg border border-slate-800 flex flex-col justify-center">
+            <span class="text-[8px] font-mono text-slate-400 block uppercase">Month & Year</span>
+            <span id="calMonthYear" class="font-serifHeading text-xs font-bold text-slate-100 uppercase truncate">OCT 2026</span>
           </div>
         </div>
 
-        <div class="text-center py-1.5 bg-slate-900/60 rounded-xl border border-amber-500/30 my-1 flex flex-col items-center justify-center">
-          <span class="text-[9px] font-mono text-slate-400 block uppercase">Day of Month</span>
-          <span id="calDateNumeric" class="font-serifHeading text-3xl font-bold text-slate-100 tracking-tight">04</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-[10px] font-mono bg-slate-950/60 p-2 rounded-md border border-slate-800">
+        <div class="grid grid-cols-2 gap-2 text-[10px] font-mono bg-slate-950/60 p-1.5 rounded-md border border-slate-800 mt-0.5">
           <div class="flex justify-between">
             <span class="text-slate-400">ISO Week:</span>
             <span id="isoWeekNum" class="text-cyanGlow font-bold">W40</span>
@@ -318,9 +330,9 @@
           <span id="moonIllumText" class="text-[10px] font-mono text-cyanGlow font-bold">42% ILLUM</span>
         </div>
 
-        <div class="flex items-center justify-center my-1.5">
-          <div class="relative w-24 h-24 rounded-full bg-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(2,132,199,0.3)] border border-slate-700">
-            <svg id="moonPhaseSvg" viewBox="0 0 100 100" class="w-20 h-20 transform -rotate-12">
+        <div class="flex items-center justify-center my-2">
+          <div class="relative w-28 h-28 rounded-full bg-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(2,132,199,0.3)] border border-slate-700">
+            <svg id="moonPhaseSvg" viewBox="0 0 100 100" class="w-24 h-24 transform -rotate-12">
               <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
               <path id="moonPhasePath" fill="#e2e8f0" d=""/>
             </svg>
@@ -356,7 +368,6 @@
               <span class="tooltip tooltip-bottom-right">Real-time heliocentric orbital map simulating Mercury, Venus, Earth, Mars, Jupiter, and Saturn in orbit around the central Sun with orbital longitude telemetry.</span>
             </i>
           </span>
-          <span class="text-[9px] font-mono text-cyanGlow border border-cyan-500/30 px-1.5 py-0.5 rounded bg-cyan-500/10">ORBITAL MAP</span>
         </div>
 
         <!-- Orrery Canvas Container -->
@@ -417,7 +428,6 @@
               <span class="tooltip tooltip-bottom-left">Rotating celestial vault chart showing visible star nodes, constellation vector skeletons, and golden ecliptic path projection calibrated to 43.2884° N.</span>
             </i>
           </span>
-          <span class="text-[9px] font-mono text-cyanGlow border border-cyan-500/30 px-1.5 py-0.5 rounded bg-cyan-500/10">43.2884° N</span>
         </div>
 
         <!-- Star Map Canvas Container -->
@@ -454,108 +464,77 @@
       </div>
     </div>
 
-    <!-- COLUMN 4: MECHANICAL & EXTENDED SOLAR TELEMETRY (3 Cols) -->
-    <div class="col-span-3 row-span-12 flex flex-col gap-3 h-full min-h-0">
+    <!-- COLUMN 4: EXTENDED SOLAR & ASTRONOMICAL TELEMETRY (3 Cols Full Height) -->
+    <div class="col-span-3 row-span-12 flex flex-col h-full min-h-0">
       
-      <!-- Mechanical Engine Panel -->
-      <div class="glass-panel p-3.5 flex flex-col gap-2">
-        <div class="flex justify-between items-center border-b border-amber-500/20 pb-1.5">
-          <span class="text-xs font-mono tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Mechanical Movement
-            <i class="info-icon">i
-              <span class="tooltip tooltip-bottom-right">Regulating 3Hz tourbillon escapement operating at 21,600 vph paired with mainspring power reserve indication.</span>
-            </i>
-          </span>
-          <span class="text-[9px] font-mono text-amber-300/80 font-semibold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">CALIBRE 3750</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 items-center">
-          <div class="flex items-center gap-2 bg-slate-950/60 p-2 rounded-lg border border-slate-800">
-            <canvas id="tourbillonCanvas" width="34" height="34" class="w-8 h-8 flex-shrink-0"></canvas>
-            <div class="flex flex-col text-left">
-              <span class="text-[9px] font-mono tracking-wider text-amber-400 uppercase">Tourbillon</span>
-              <span class="text-xs font-mono font-bold text-slate-100 whitespace-nowrap">21,600 vph</span>
-              <span class="text-[8px] font-mono text-slate-400">(3Hz Cadence)</span>
-            </div>
-          </div>
-
-          <div class="flex flex-col justify-center bg-slate-950/60 p-2 rounded-lg border border-slate-800 h-full">
-            <div class="flex justify-between items-center text-[9px] font-mono mb-1">
-              <span class="text-amber-300 font-semibold">POWER RESERVE</span>
-              <span id="powerReserveText" class="text-slate-200 font-bold">100%</span>
-            </div>
-            <div class="w-full h-2 bg-slate-950 rounded-full border border-amber-500/30 overflow-hidden">
-              <div id="powerReserveBar" class="h-full bg-gradient-to-r from-red-500 via-amber-500 to-emerald-400 w-full transition-all duration-500"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Extended Solar & Astronomical Telemetry Panel -->
-      <div class="glass-panel p-3.5 flex-1 flex flex-col justify-between min-h-0">
-        <div class="flex justify-between items-center border-b border-amber-500/20 pb-1.5">
-          <span class="text-xs font-mono tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            Solar & Earth Telemetry
-            <i class="info-icon">i
+      <div class="glass-panel p-4 h-full flex flex-col justify-between min-h-0">
+        <!-- Tightened Single-Line Header Box to Prevent Libra Badge Wrapping -->
+        <div class="flex justify-between items-center border-b border-amber-500/20 pb-2 min-w-0">
+          <div class="flex items-center gap-1.5 min-w-0 pr-1">
+            <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <span class="text-[11px] font-mono tracking-wider text-amber-400 uppercase font-bold truncate">
+              Solar & Earth Telemetry
+            </span>
+            <i class="info-icon flex-shrink-0">i
               <span class="tooltip tooltip-bottom-right">Calculates solar elevation, azimuth, zenith, solar noon, sub-solar Earth coordinates, heliographic B₀ tilt, daylight/night duration, and orbital distance.</span>
             </i>
-          </span>
-          <span id="zodiacSignBadge" class="text-[10px] font-mono text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">
+          </div>
+
+          <!-- Non-Wrapping Compact Zodiac Badge -->
+          <span id="zodiacSignBadge" class="text-[10px] font-mono text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30 whitespace-nowrap flex-shrink-0 flex items-center gap-1">
             LIBRA ♎
           </span>
         </div>
 
-        <!-- Sun Elevation Gauge -->
-        <div class="relative w-full h-24 my-1.5 bg-slate-950/80 rounded-xl border border-slate-800 p-2.5 flex flex-col justify-between overflow-hidden">
+        <!-- Expanded Sun Elevation Gauge -->
+        <div class="relative w-full h-36 my-2 bg-slate-950/80 rounded-xl border border-slate-800 p-3 flex flex-col justify-between overflow-hidden">
           <svg class="absolute inset-0 w-full h-full text-slate-800" preserveAspectRatio="none" viewBox="0 0 100 50">
             <path d="M 5,45 Q 50,5 95,45" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
             <line x1="5" y1="45" x2="95" y2="45" stroke="#475569" stroke-width="1"/>
           </svg>
-          <div id="sunArcIndicator" class="absolute w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_12px_#f59e0b] transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300" style="left: 50%; top: 50%;"></div>
+          <div id="sunArcIndicator" class="absolute w-4 h-4 rounded-full bg-amber-400 shadow-[0_0_12px_#f59e0b] transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300" style="left: 50%; top: 50%;"></div>
           
-          <div class="flex justify-between text-[9px] font-mono text-slate-400 z-10">
-            <span>RISE: <strong id="sunriseTimeText" class="text-slate-200">07:08 AM</strong></span>
-            <span>SET: <strong id="sunsetTimeText" class="text-slate-200">06:48 PM</strong></span>
+          <div class="flex justify-between text-[10px] font-mono text-slate-300 z-10">
+            <span>RISE: <strong id="sunriseTimeText" class="text-slate-100 font-bold">07:08 AM</strong></span>
+            <span>SET: <strong id="sunsetTimeText" class="text-slate-100 font-bold">06:48 PM</strong></span>
           </div>
-          <div class="text-center z-10 mt-1">
-            <span class="text-[9px] font-mono text-slate-400 uppercase tracking-wide">Solar Elevation</span>
-            <span id="sunElevationText" class="block font-mono text-base font-bold text-amber-300 leading-snug">+34.2°</span>
+          <div class="text-center z-10 my-auto">
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">Solar Elevation</span>
+            <span id="sunElevationText" class="block font-mono text-2xl font-bold text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)] mt-0.5">+34.2°</span>
           </div>
         </div>
 
         <!-- Extended Solar Telemetry Grid -->
-        <div class="grid grid-cols-2 gap-1.5 text-[10px] font-mono">
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+        <div class="grid grid-cols-2 gap-2 text-[10px] font-mono my-1">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Solar Azimuth / Zenith</span>
-            <span id="sunAzimuthText" class="text-slate-200 font-bold text-[9px]">184.2° (S) / 55.8° Z</span>
+            <span id="sunAzimuthText" class="text-slate-200 font-bold text-[10px]">184.2° (S) / 55.8° Z</span>
           </div>
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Solar Noon (Culmination)</span>
-            <span id="solarNoonText" class="text-slate-200 font-bold text-[9px]">01:02:14 PM</span>
+            <span id="solarNoonText" class="text-slate-200 font-bold text-[10px]">01:02:14 PM</span>
           </div>
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Daylight Duration</span>
-            <span id="dayLengthText" class="text-amber-300 font-bold text-[9px]">11h 40m 12s</span>
+            <span id="dayLengthText" class="text-amber-300 font-bold text-[10px]">11h 40m 12s</span>
           </div>
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Length of Night</span>
-            <span id="nightLengthText" class="text-indigo-300 font-bold text-[9px]">12h 19m 48s</span>
+            <span id="nightLengthText" class="text-indigo-300 font-bold text-[10px]">12h 19m 48s</span>
           </div>
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Earth-Sun Distance</span>
-            <span id="earthDistText" class="text-cyanGlow font-bold text-[9px]">0.9984 AU (149.3M km)</span>
+            <span id="earthDistText" class="text-cyanGlow font-bold text-[10px]">0.9984 AU (149.3M km)</span>
           </div>
-          <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
             <span class="text-slate-400 block text-[8px] uppercase">Next Solstice / Equinox</span>
-            <span id="nextSeasonText" class="text-amber-300 font-bold text-[9px]">Dec Solstice (78d)</span>
+            <span id="nextSeasonText" class="text-amber-300 font-bold text-[10px]">Dec Solstice (78d)</span>
           </div>
         </div>
 
-        <div class="space-y-1.5">
+        <div class="space-y-2 mt-1">
           <!-- Equation of Time -->
-          <div class="bg-slate-950/80 p-2 rounded-xl border border-amber-500/20">
+          <div class="bg-slate-950/80 p-2.5 rounded-xl border border-amber-500/20">
             <div class="flex justify-between items-center text-[10px] font-mono mb-1">
               <span class="text-amber-400 flex items-center gap-1.5">
                 EQUATION OF TIME (EOT)
@@ -572,42 +551,42 @@
           </div>
 
           <!-- Sidereal, Declination, Sub-Solar Point & Heliographic B0 Grid -->
-          <div class="grid grid-cols-2 gap-1.5 text-[10px] font-mono">
-            <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+          <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
+            <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
               <span class="text-slate-400 block text-[8px] uppercase flex items-center gap-1">
                 Local Sidereal Time
                 <i class="info-icon">i
                   <span class="tooltip tooltip-top-right">Measures Earth's rotation relative to fixed distant stars rather than the Sun (23h 56m 4s per sidereal day).</span>
                 </i>
               </span>
-              <span id="lstTimeText" class="text-cyanGlow font-bold text-[9px]">00h 42m 10s</span>
+              <span id="lstTimeText" class="text-cyanGlow font-bold text-[10px]">00h 42m 10s</span>
             </div>
-            <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+            <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
               <span class="text-slate-400 block text-[8px] uppercase flex items-center gap-1">
                 Solar Declination
                 <i class="info-icon">i
                   <span class="tooltip tooltip-top-right">The angle between the Sun's rays and Earth's equatorial plane, varying from -23.44° (winter solstice) to +23.44° (summer solstice).</span>
                 </i>
               </span>
-              <span id="sunDeclinationText" class="text-slate-200 font-bold text-[9px]">-04.58°</span>
+              <span id="sunDeclinationText" class="text-slate-200 font-bold text-[10px]">-04.58°</span>
             </div>
-            <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+            <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
               <span class="text-slate-400 block text-[8px] uppercase flex items-center gap-1">
                 Sub-Solar Point
                 <i class="info-icon">i
                   <span class="tooltip tooltip-top-right">Exact surface coordinates on Earth (Latitude/Longitude) where the Sun is directly at zenith (90° altitude).</span>
                 </i>
               </span>
-              <span id="subSolarPointText" class="text-amber-300 font-bold text-[9px]">04.58°S, 139.62°W</span>
+              <span id="subSolarPointText" class="text-amber-300 font-bold text-[10px]">04.58°S, 139.62°W</span>
             </div>
-            <div class="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
+            <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
               <span class="text-slate-400 block text-[8px] uppercase flex items-center gap-1">
                 Solar Tilt (B₀)
                 <i class="info-icon">i
                   <span class="tooltip tooltip-top-right">Heliographic latitude of the central solar meridian facing Earth, caused by the 7.25° inclination of the solar equator.</span>
                 </i>
               </span>
-              <span id="subEarthB0Text" class="text-cyanGlow font-bold text-[9px]">+6.15° B₀</span>
+              <span id="subEarthB0Text" class="text-cyanGlow font-bold text-[10px]">+6.15° B₀</span>
             </div>
           </div>
         </div>
@@ -651,8 +630,8 @@
               <div class="text-[11px] text-slate-300">Primary 24-hour civil clock for Hamlin, NY with sub-second precision and dynamic day/night status.</div>
             </div>
             <div class="bg-slate-900/70 p-2.5 rounded-lg border border-slate-800/80 hover:border-emerald-500/30 transition-colors">
-              <div class="text-emerald-300 font-bold mb-0.5">2. Cycling World City Display</div>
-              <div class="text-[11px] text-slate-300">Cycles through all 24 global reference cities every 5 seconds with smooth fade transitions, calculating local civil time, daytime phase, and UTC offset.</div>
+              <div class="text-emerald-300 font-bold mb-0.5">2. Rotating 24-City Secondary Zone</div>
+              <div class="text-[11px] text-slate-300">Cycles through 24 reference cities globally every 10 seconds, calculating local civil time, daytime phase, and UTC offset.</div>
             </div>
             <div class="bg-slate-900/70 p-2.5 rounded-lg border border-slate-800/80 hover:border-emerald-500/30 transition-colors">
               <div class="text-emerald-300 font-bold mb-0.5">3. Gregorian Perpetual Calendar</div>
@@ -819,46 +798,48 @@
     }
 
     function initTourbillonAnimation() {
-      const canvas = document.getElementById('tourbillonCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      
+      const canvases = document.querySelectorAll('.tourbillon-canvas');
+      if (!canvases.length) return;
+
       function animateTourbillon(timestamp) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const center = canvas.width / 2;
-        const swing = Math.sin(timestamp * 0.0188) * (Math.PI * 0.7);
-        
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(center, center, 14, 0, Math.PI * 2);
-        ctx.stroke();
+        canvases.forEach(canvas => {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const center = canvas.width / 2;
+          const swing = Math.sin(timestamp * 0.0188) * (Math.PI * 0.7);
+          
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(center, center, center * 0.75, 0, Math.PI * 2);
+          ctx.stroke();
 
-        ctx.save();
-        ctx.translate(center, center);
-        ctx.rotate(swing);
+          ctx.save();
+          ctx.translate(center, center);
+          ctx.rotate(swing);
 
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(-11, 0); ctx.lineTo(11, 0);
-        ctx.moveTo(0, -11); ctx.lineTo(0, 11);
-        ctx.stroke();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(-center * 0.6, 0); ctx.lineTo(center * 0.6, 0);
+          ctx.moveTo(0, -center * 0.6); ctx.lineTo(0, center * 0.6);
+          ctx.stroke();
 
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        for (let i = 0; i < 30; i++) {
-          const r = 1 + i * 0.35;
-          const a = i * 0.4 + swing * 0.2;
-          const x = r * Math.cos(a);
-          const y = r * Math.sin(a);
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          for (let i = 0; i < 28; i++) {
+            const r = 1 + i * (center * 0.02);
+            const a = i * 0.4 + swing * 0.2;
+            const x = r * Math.cos(a);
+            const y = r * Math.sin(a);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
 
-        ctx.restore();
+          ctx.restore();
+        });
         requestAnimationFrame(animateTourbillon);
       }
       requestAnimationFrame(animateTourbillon);
@@ -1015,7 +996,6 @@
 
       const longs = calculatePlanetaryLongitudes(d);
 
-      // Update Telemetry UI
       document.getElementById('longMerc').textContent = `${longs.merc.toFixed(1)}°`;
       document.getElementById('longVen').textContent = `${longs.ven.toFixed(1)}°`;
       document.getElementById('longEar').textContent = `${longs.ear.toFixed(1)}°`;
@@ -1023,7 +1003,6 @@
       document.getElementById('longJup').textContent = `${longs.jup.toFixed(1)}°`;
       document.getElementById('longSat').textContent = `${longs.sat.toFixed(1)}°`;
 
-      // Central Sun Glow
       const sunGradient = ctx.createRadialGradient(cx, cy, 2, cx, cy, 14);
       sunGradient.addColorStop(0, '#fef08a');
       sunGradient.addColorStop(0.4, '#f59e0b');
@@ -1039,7 +1018,6 @@
       ctx.arc(cx, cy, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Planet Configs (Radius px, Color, Name, Longitude Deg)
       const planets = [
         { name: 'MERC', r: maxR * 0.18, size: 2.5, color: '#a1a1aa', long: longs.merc },
         { name: 'VEN',  r: maxR * 0.32, size: 3.5, color: '#fbbf24', long: longs.ven },
@@ -1050,7 +1028,6 @@
       ];
 
       planets.forEach(p => {
-        // Draw Orbit Ring
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 3]);
@@ -1059,12 +1036,10 @@
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Planet Coordinates
         const angle = rad(p.long);
         const px = cx + p.r * Math.cos(angle);
         const py = cy + p.r * Math.sin(angle);
 
-        // Planet Glow
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
         ctx.shadowBlur = 8;
@@ -1073,7 +1048,6 @@
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Saturn Rings
         if (p.hasRings) {
           ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
           ctx.lineWidth = 1.2;
@@ -1082,7 +1056,6 @@
           ctx.stroke();
         }
 
-        // Earth Moon
         if (p.hasMoon) {
           const moonAngle = angle + rad((d % 29.53) / 29.53 * 360);
           const mx = px + 8 * Math.cos(moonAngle);
@@ -1093,7 +1066,6 @@
           ctx.fill();
         }
 
-        // Labels
         ctx.font = 'bold 9px JetBrains Mono';
         ctx.fillStyle = '#cbd5e1';
         ctx.textAlign = 'center';
@@ -1238,10 +1210,8 @@
       ctx.restore();
     }
 
-    // State tracking for city cycling with fade
     let currentCityIndex = 0;
     let lastCitySwitchTime = 0;
-    let isFadingOut = false;
 
     function updateMasterDashboard() {
       const now = new Date();
@@ -1249,20 +1219,18 @@
 
       const timeStr = now.toLocaleTimeString('en-US', { timeZone: HAMLIN_TZ, hour12: false });
       const ms = String(now.getMilliseconds()).padStart(3, '0').substring(0, 2);
-      document.getElementById('masterTime').innerHTML = `${timeStr}<span class="text-base text-amber-400/80 font-light">.${ms}</span>`;
+      document.getElementById('masterTime').innerHTML = `${timeStr}<span class="text-sm text-amber-400/80 font-light">.${ms}</span>`;
 
-      // 5-second Cycling World City Display with smooth fade transition
       if (lastCitySwitchTime === 0) {
         lastCitySwitchTime = currentTimeMs;
       }
       
       const elapsedSinceSwitch = currentTimeMs - lastCitySwitchTime;
-      const container = document.getElementById('cityDisplayContainer');
+      const container = document.getElementById('secondZoneLabel').parentElement.parentElement;
 
-      // Trigger fade out at 4.4 seconds, switch city at 5.0 seconds, fade in
-      if (elapsedSinceSwitch >= 4400 && elapsedSinceSwitch < 5000) {
+      if (elapsedSinceSwitch >= 9400 && elapsedSinceSwitch < 10000) {
         container.style.opacity = '0';
-      } else if (elapsedSinceSwitch >= 5000) {
+      } else if (elapsedSinceSwitch >= 10000) {
         currentCityIndex = (currentCityIndex + 1) % WORLD_CITIES.length;
         lastCitySwitchTime = currentTimeMs;
         container.style.opacity = '1';
@@ -1270,10 +1238,10 @@
 
       const city = WORLD_CITIES[currentCityIndex];
       const cityTimeStr = now.toLocaleTimeString('en-US', { timeZone: city.zone, hour12: false });
-      const cityHour = parseInt(now.toLocaleTimeString('en-US', { timeZone: city.zone, hour: '2-digit', hourCycle: 'h23' }), 10);
+      const cityHour = parseInt(now.toLocaleTimeString('en-US', { timeZone: city.zone, hour: '2-digit', hour12: false }), 10);
       const isDay = cityHour >= 6 && cityHour < 18;
 
-      const utcH = parseInt(now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour: '2-digit', hourCycle: 'h23' }), 10);
+      const utcH = parseInt(now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour: '2-digit', hour12: false }), 10);
       let diff = cityHour - utcH;
       if (diff > 12) diff -= 24;
       if (diff < -12) diff += 24;
@@ -1311,8 +1279,8 @@
 
       const solar = calculateSolarData(now, HAMLIN_LAT, HAMLIN_LNG);
       document.getElementById('sunElevationText').textContent = `${solar.elevation > 0 ? '+' : ''}${solar.elevation.toFixed(1)}°`;
-      document.getElementById('sunAzimuthText').textContent = `${solar.azimuth.toFixed(1)}° / ${solar.zenith.toFixed(1)}°`;
-      document.getElementById('zodiacSignBadge').textContent = getZodiacSign(now);
+      document.getElementById('sunAzimuthText').textContent = `${solar.azimuth.toFixed(1)}° (S) / ${solar.zenith.toFixed(1)}° Z`;
+      document.getElementById('zodiacSignBadge').innerHTML = `<span>${getZodiacSign(now)}</span>`;
 
       const formatUtcHour = utcHours => {
         if (isNaN(utcHours)) return 'N/A';
@@ -1378,39 +1346,13 @@
       const b0Sign = solar.subEarthB0 >= 0 ? '+' : '';
       document.getElementById('subEarthB0Text').textContent = `${b0Sign}${solar.subEarthB0.toFixed(2)}° B₀`;
 
-      // Render both Orrery (Col 2) and Celestial Sky Vault (Col 3) simultaneously
       renderOrreryCanvas(document.getElementById('orreryCanvas'), solar.julianDays);
       renderStarMap(document.getElementById('starMapCanvas'), solar.lstHours);
-    }
-
-    function initPowerReserveSystem() {
-      const reserveBar = document.getElementById('powerReserveBar');
-      const reserveText = document.getElementById('powerReserveText');
-
-      if ('getBattery' in navigator) {
-        navigator.getBattery().then(battery => {
-          function updateBattery() {
-            const level = Math.round(battery.level * 100);
-            reserveBar.style.width = `${level}%`;
-            reserveText.textContent = `${level}%`;
-          }
-          updateBattery();
-          battery.addEventListener('levelchange', updateBattery);
-        });
-      } else {
-        let mockPower = 100;
-        setInterval(() => {
-          mockPower = Math.max(10, mockPower - 0.01);
-          reserveBar.style.width = `${mockPower.toFixed(1)}%`;
-          reserveText.textContent = `${Math.round(mockPower)}%`;
-        }, 10000);
-      }
     }
 
     window.onload = function () {
       initComplicationsModal();
       initTourbillonAnimation();
-      initPowerReserveSystem();
 
       updateMasterDashboard();
       setInterval(updateMasterDashboard, 100);
