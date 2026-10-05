@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamlin, NY - Weather Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#080c14',
+                        cardBg: 'rgba(15, 23, 42, 0.75)',
+                        accentCyan: '#06b6d4',
+                        accentBlue: '#3b82f6',
+                        accentViolet: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Ensure strictly zero page scrollbars on 1080p */
+        }
+
+        body {
+            background-color: #080c14;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(6, 182, 212, 0.10) 0px, transparent 40%),
+                radial-gradient(at 90% 15%, rgba(139, 92, 246, 0.12) 0px, transparent 40%),
+                radial-gradient(at 50% 85%, rgba(59, 130, 246, 0.10) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-hover:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -5px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Shortened height for 1080p single view */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 380px); /* Dynamically scaled height */
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 flex flex-col justify-between font-sans antialiased">
+    <div class="max-w-7xl mx-auto w-full h-full flex flex-col justify-between space-y-4">
+
+        <!-- Top Header Bar -->
+        <header class="flex items-center justify-between glass-card px-5 py-3 rounded-2xl shrink-0">
+            <div class="flex items-center space-x-3.5">
+                <div class="p-2 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                        Hamlin, NY Weather
+                    </h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
+                        <span>43.29° N, 77.94° W</span> • <span id="last-updated">Updating...</span>
+                    </p>
+                </div>
+            </div>
+            
+            <button id="refresh-btn" onclick="fetchWeatherData()" class="px-4 py-2 rounded-xl glass-card hover:bg-slate-800/80 transition-all text-slate-200 hover:text-cyan-400 flex items-center gap-2 text-xs font-semibold">
+                <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
+                <span>Refresh</span>
+            </button>
+        </header>
+
+        <!-- 5-Day Horizontal Forecast Row with Extra-Large Icons & Fonts -->
+        <section class="shrink-0">
+            <div id="forecast-grid" class="grid grid-cols-5 gap-3.5">
+                <!-- Forecast Cards Rendered via JavaScript -->
+                <div class="glass-card p-6 rounded-2xl text-center text-slate-400 animate-pulse col-span-5 text-base">
+                    Loading 5-day weather outlook...
+                </div>
+            </div>
+        </section>
+
+        <!-- 24-Hour Precipitation Chart Panel (Shortened for 1080p fit) -->
+        <section class="glass-card rounded-2xl p-4 md:p-5 flex-1 flex flex-col justify-between min-h-0">
+            <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-800/80 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100">24-Hour Precipitation Forecast</h2>
+                        <p class="text-xs text-slate-400">Hourly probability (%) & expected volume (in)</p>
+                    </div>
+                </div>
+
+                <!-- Unit & Metric Toggle Buttons -->
+                <div class="flex items-center bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 space-x-1">
+                    <button id="chart-type-prob" onclick="switchChartMetric('prob')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md">
+                        Probability (%)
+                    </button>
+                    <button id="chart-type-amt" onclick="switchChartMetric('amt')" class="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-all">
+                        Amount (in)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="chart-container flex-1">
+                <canvas id="precipChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Error Banner -->
+        <div id="error-banner" class="hidden glass-card border-red-500/30 bg-red-950/40 p-3 rounded-xl flex items-center justify-between text-red-200 text-xs shrink-0">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-red-400"></i>
+                <span id="error-message">Unable to fetch live weather data. Displaying fallback data.</span>
+            </div>
+            <button onclick="document.getElementById('error-banner').classList.add('hidden')" class="text-red-400 hover:text-red-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-[11px] text-slate-500 py-0.5 shrink-0 font-medium">
+            Hamlin, NY Weather Dashboard • Powered by Open-Meteo
+        </footer>
+    </div>
+
+    <script>
+        // API Endpoint for Hamlin, NY
+        const API_URL = "https://api.open-meteo.com/v1/forecast?latitude=43.29&longitude=-77.94&hourly=precipitation,precipitation_probability,temperature_2m&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&current_weather=true&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=America%2FNew_York";
+
+        // Global State & Chart Reference
+        let precipChartInstance = null;
+        let globalHourlyData = null;
+        let activeChartMetric = 'prob';
+
+        // Weather Code Interpretation Map
+        const WMO_CODES = {
+            0: { label: 'Clear Sky', icon: 'sun', color: 'text-amber-400' },
+            1: { label: 'Mainly Clear', icon: 'cloud-sun', color: 'text-amber-300' },
+            2: { label: 'Partly Cloudy', icon: 'cloud-sun', color: 'text-slate-300' },
+            3: { label: 'Overcast', icon: 'cloud', color: 'text-slate-400' },
+            45: { label: 'Foggy', icon: 'cloud-fog', color: 'text-slate-400' },
+            48: { label: 'Rime Fog', icon: 'cloud-fog', color: 'text-slate-400' },
+            51: { label: 'Light Drizzle', icon: 'cloud-drizzle', color: 'text-blue-300' },
+            53: { label: 'Drizzle', icon: 'cloud-drizzle', color: 'text-blue-400' },
+            55: { label: 'Heavy Drizzle', icon: 'cloud-rain-wind', color: 'text-blue-500' },
+            61: { label: 'Slight Rain', icon: 'cloud-rain', color: 'text-blue-400' },
+            63: { label: 'Rain', icon: 'cloud-rain', color: 'text-blue-500' },
+            65: { label: 'Heavy Rain', icon: 'cloud-lightning', color: 'text-cyan-400' },
+            71: { label: 'Slight Snow', icon: 'snowflake', color: 'text-indigo-200' },
+            73: { label: 'Snow', icon: 'snowflake', color: 'text-indigo-300' },
+            75: { label: 'Heavy Snow', icon: 'snowflake', color: 'text-indigo-400' },
+            77: { label: 'Snow Grains', icon: 'snowflake', color: 'text-indigo-200' },
+            80: { label: 'Showers', icon: 'cloud-rain', color: 'text-blue-400' },
+            81: { label: 'Heavy Showers', icon: 'cloud-rain-wind', color: 'text-blue-500' },
+            82: { label: 'Violent Showers', icon: 'cloud-lightning', color: 'text-purple-400' },
+            85: { label: 'Snow Showers', icon: 'snowflake', color: 'text-indigo-300' },
+            86: { label: 'Heavy Snow Showers', icon: 'snowflake', color: 'text-indigo-400' },
+            95: { label: 'Thunderstorm', icon: 'cloud-lightning', color: 'text-amber-400' },
+            96: { label: 'Thunderstorm + Hail', icon: 'cloud-lightning', color: 'text-red-400' }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            fetchWeatherData();
+        });
+
+        async function fetchWeatherData() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('animate-spin');
+            hideError();
+
+            try {
+                const response = await fetchWithBackoff(API_URL, 3);
+                const data = await response.json();
+                
+                updateForecastGrid(data);
+                prepareChartData(data);
+
+                const now = new Date();
+                document.getElementById('last-updated').innerText = `Updated ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+            } catch (error) {
+                console.error("Failed to fetch weather data:", error);
+                showError("Unable to reach Open-Meteo API. Displaying fallback data.");
+                renderFallbackData();
+            } finally {
+                refreshIcon.classList.remove('animate-spin');
+            }
+        }
+
+        async function fetchWithBackoff(url, retries = 3, delay = 800) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) return res;
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                }
+                await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+            }
+            throw new Error("Max retries reached");
+        }
+
+        // Render Top 5-Day Forecast Grid with Extra-Large Icons & Text
+        function updateForecastGrid(data) {
+            const grid = document.getElementById('forecast-grid');
+            grid.innerHTML = '';
+
+            const daily = data.daily;
+            if (!daily || !daily.time) return;
+
+            for (let i = 0; i < 5; i++) {
+                const dateStr = daily.time[i];
+                const dateObj = new Date(dateStr + 'T00:00:00');
+                const dayName = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+
+                const maxTemp = Math.round(daily.temperature_2m_max[i]);
+                const minTemp = Math.round(daily.temperature_2m_min[i]);
+                const precipSum = daily.precipitation_sum[i].toFixed(2);
+                const code = daily.weathercode[i];
+                const weather = WMO_CODES[code] || { label: 'Variable', icon: 'cloud', color: 'text-slate-300' };
+
+                const cardHTML = `
+                    <div class="glass-card glass-card-hover px-4 py-3.5 rounded-2xl flex flex-col justify-between items-center text-center">
+                        <!-- Day & Date Header -->
+                        <div class="flex items-center justify-between w-full border-b border-slate-800/80 pb-2">
+                            <span class="text-sm md:text-base font-extrabold tracking-wide text-slate-100">${dayName}</span>
+                            <span class="text-xs font-semibold text-slate-400">${formattedDate}</span>
+                        </div>
+
+                        <!-- Substantially Larger Weather Condition Icon -->
+                        <div class="my-2 flex flex-col items-center justify-center">
+                            <div class="${weather.color} drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]">
+                                <i data-lucide="${weather.icon}" class="w-12 h-12 md:w-14 md:h-14 stroke-[1.75]"></i>
+                            </div>
+                            <span class="text-xs md:text-sm font-bold text-slate-200 mt-1 leading-tight">${weather.label}</span>
+                        </div>
+
+                        <!-- Significantly Larger Temperatures & Rain Volume -->
+                        <div class="w-full pt-2 border-t border-slate-800/80 flex justify-between items-center">
+                            <div class="flex items-baseline space-x-1.5">
+                                <span class="text-lg md:text-xl font-black text-white">${maxTemp}°</span>
+                                <span class="text-xs md:text-sm font-semibold text-slate-400">${minTemp}°</span>
+                            </div>
+                            <div class="flex items-center space-x-1 text-xs md:text-sm text-cyan-400 font-bold">
+                                <i data-lucide="droplet" class="w-3.5 h-3.5"></i>
+                                <span>${precipSum}"</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHTML;
+            }
+
+            lucide.createIcons();
+        }
+
+        function prepareChartData(data) {
+            if (!data.hourly) return;
+
+            const now = new Date();
+            const currentHourIndex = data.hourly.time.findIndex(t => new Date(t) >= now) || 0;
+
+            const next24Times = data.hourly.time.slice(currentHourIndex, currentHourIndex + 24);
+            const next24Prob = data.hourly.precipitation_probability.slice(currentHourIndex, currentHourIndex + 24);
+            const next24Amt = data.hourly.precipitation.slice(currentHourIndex, currentHourIndex + 24);
+
+            const labels = next24Times.map(t => {
+                const date = new Date(t);
+                return date.toLocaleTimeString([], { hour: 'numeric' });
+            });
+
+            globalHourlyData = {
+                labels: labels,
+                probability: next24Prob,
+                amount: next24Amt
+            };
+
+            renderPrecipChart();
+        }
+
+        function renderPrecipChart() {
+            if (!globalHourlyData) return;
+
+            const ctx = document.getElementById('precipChart').getContext('2d');
+            
+            if (precipChartInstance) {
+                precipChartInstance.destroy();
+            }
+
+            const isProb = activeChartMetric === 'prob';
+            const chartData = isProb ? globalHourlyData.probability : globalHourlyData.amount;
+            const labelTitle = isProb ? 'Precipitation Chance (%)' : 'Precipitation Amount (in)';
+            
+            // Gradient fill
+            const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+            if (isProb) {
+                gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+                gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+            } else {
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+            }
+
+            precipChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: globalHourlyData.labels,
+                    datasets: [{
+                        label: labelTitle,
+                        data: chartData,
+                        borderColor: isProb ? '#06b6d4' : '#3b82f6',
+                        borderWidth: 3,
+                        pointBackgroundColor: isProb ? '#06b6d4' : '#3b82f6',
+                        pointBorderColor: '#080c14',
+                        pointBorderWidth: 2,
+                        pointRadius: 3.5,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#38bdf8',
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return isProb ? `${context.parsed.y}% chance` : `${context.parsed.y} in`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                            ticks: { 
+                                color: '#94a3b8', 
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                callback: function(value) {
+                                    return isProb ? `${value}%` : `${value}"`;
+                                }
+                            },
+                            beginAtZero: true,
+                            max: isProb ? 100 : undefined
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchChartMetric(metric) {
+            activeChartMetric = metric;
+
+            const btnProb = document.getElementById('chart-type-prob');
+            const btnAmt = document.getElementById('chart-type-amt');
+
+            if (metric === 'prob') {
+                btnProb.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md";
+                btnAmt.className = "px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-all";
+            } else {
+                btnAmt.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md";
+                btnProb.className = "px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-all";
+            }
+
+            renderPrecipChart();
+        }
+
+        function showError(msg) {
+            const banner = document.getElementById('error-banner');
+            document.getElementById('error-message').innerText = msg;
+            banner.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error-banner').classList.add('hidden');
+        }
+
+        function renderFallbackData() {
+            const fallbackData = {
+                daily: {
+                    time: ["2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"],
+                    temperature_2m_max: [65, 62, 58, 60, 64],
+                    temperature_2m_min: [48, 45, 42, 44, 49],
+                    precipitation_sum: [0.12, 0.00, 0.05, 0.25, 0.00],
+                    weathercode: [61, 1, 2, 63, 0]
+                },
+                hourly: {
+                    time: Array.from({length: 24}, (_, i) => new Date(Date.now() + i*3600000).toISOString()),
+                    precipitation_probability: [20, 15, 10, 5, 0, 0, 10, 30, 50, 60, 40, 20, 10, 5, 0, 0, 0, 5, 10, 15, 20, 25, 30, 20],
+                    precipitation: [0.01, 0, 0, 0, 0, 0, 0.02, 0.05, 0.08, 0.1, 0.04, 0.01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.01, 0.02, 0.01]
+                }
+            };
+
+            updateForecastGrid(fallbackData);
+            prepareChartData(fallbackData);
+        }
+    </script>
+</body>
+</html>

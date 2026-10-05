@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown Display</title>
+  <style>
+    :root {
+      --theme-bg: #0f172a;
+      --theme-card: rgba(15, 23, 42, 0.4);
+      --theme-accent: #38bdf8;
+      --theme-text: #ffffff;
+      --theme-border: rgba(255, 255, 255, 0.2);
+      --text-muted: #e2e8f0;
+      --theme-bg-image: url('default.jpeg');
+    }
+
+    body.theme-christmas {
+      --theme-bg: #051f12;
+      --theme-card: rgba(5, 31, 18, 0.4);
+      --theme-accent: #ff4d4d;
+      --theme-text: #ffffff;
+      --theme-border: rgba(255, 255, 255, 0.25);
+      --theme-bg-image: url('christmas.jpeg');
+    }
+
+    body.theme-school {
+      --theme-bg: #1e1b4b;
+      --theme-card: rgba(30, 27, 75, 0.4);
+      --theme-accent: #fbbf24;
+      --theme-text: #ffffff;
+      --theme-border: rgba(255, 255, 255, 0.25);
+      --theme-bg-image: url('school.jpeg');
+    }
+
+    body.theme-birthday {
+      --theme-bg: #2e1065;
+      --theme-card: rgba(46, 16, 101, 0.4);
+      --theme-accent: #f43f5e;
+      --theme-text: #ffffff;
+      --theme-border: rgba(255, 255, 255, 0.25);
+      --theme-bg-image: url('birthday.jpeg');
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--theme-bg);
+      background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), var(--theme-bg-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: var(--theme-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2vh 2vw;
+      transition: background 0.5s ease;
+      overflow-x: hidden;
+    }
+
+    /* Main Container - Fully Transparent Panel with Frosted Glass */
+    .container {
+      width: 90vw;
+      background-color: var(--theme-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid var(--theme-border);
+      border-radius: 28px;
+      padding: 3.5rem 4rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .header-title {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800;
+      color: var(--theme-text);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .settings-btn {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--theme-border);
+      color: var(--theme-text);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      min-width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .settings-btn:hover {
+      color: var(--theme-accent);
+      border-color: var(--theme-accent);
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .settings-btn svg {
+      width: 32px;
+      height: 32px;
+      fill: currentColor;
+    }
+
+    /* Collapsible Settings Panel */
+    .settings-panel {
+      display: none;
+      background-color: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--theme-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .settings-panel.open {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    input, select {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--theme-border);
+      color: var(--theme-text);
+      padding: 0.875rem 1.25rem;
+      border-radius: 10px;
+      font-size: 1.125rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--theme-accent);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    .inputs-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Semi-transparent Time Cards */
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .time-card {
+      background-color: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid var(--theme-border);
+      border-radius: 24px;
+      padding: 4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .time-value {
+      font-size: clamp(5rem, 12vw, 12rem);
+      font-weight: 900;
+      color: var(--theme-accent);
+      line-height: 0.95;
+      margin-bottom: 1rem;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .time-label {
+      font-size: clamp(1rem, 2vw, 2rem);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* Progress Bar Section */
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(1.125rem, 2vw, 2rem);
+      font-weight: 700;
+      color: var(--theme-text);
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 32px;
+      background-color: rgba(0, 0, 0, 0.45);
+      border: 2px solid var(--theme-border);
+      border-radius: 9999px;
+      overflow: hidden;
+      padding: 3px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--theme-accent);
+      border-radius: 9999px;
+      transition: width 0.4s ease-out;
+      box-shadow: 0 0 12px var(--theme-accent);
+    }
+
+    .expired-message {
+      display: none;
+      text-align: center;
+      font-size: clamp(3rem, 6vw, 6rem);
+      font-weight: 800;
+      color: #ef4444;
+      padding: 4rem 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 95vw;
+        padding: 2rem 1.5rem;
+      }
+      .countdown-grid {
+        gap: 0.75rem;
+      }
+      .time-card {
+        padding: 2rem 0.5rem;
+      }
+      .progress-track {
+        height: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-bar">
+      <h1 class="header-title" id="pageTitle">Countdown Timer</h1>
+      <button class="settings-btn" id="settingsToggle" title="Settings">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Hidden Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+      <div class="input-group">
+        <div class="input-field">
+          <label for="titleInput">Event Title</label>
+          <input type="text" id="titleInput" placeholder="Enter event title..." value="Countdown Timer" />
+        </div>
+
+        <div class="input-field">
+          <label for="themeSelect">Theme Preset</label>
+          <select id="themeSelect">
+            <option value="none">Default</option>
+            <option value="christmas">Christmas</option>
+            <option value="school">Last day of School!</option>
+            <option value="birthday">Birthday</option>
+          </select>
+        </div>
+
+        <div class="inputs-row">
+          <div class="input-field">
+            <label for="startDateInput">Start Date</label>
+            <input type="date" id="startDateInput" />
+          </div>
+          <div class="input-field">
+            <label for="dateInput">Target Date</label>
+            <input type="date" id="dateInput" />
+          </div>
+          <div class="input-field">
+            <label for="timeInput">Target Time</label>
+            <input type="time" id="timeInput" value="00:00" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Countdown Display -->
+    <div class="countdown-grid" id="countdownGrid">
+      <div class="time-card">
+        <span class="time-value" id="days">00</span>
+        <span class="time-label">Days</span>
+      </div>
+      <div class="time-card">
+        <span class="time-value" id="hours">00</span>
+        <span class="time-label">Hours</span>
+      </div>
+      <div class="time-card">
+        <span class="time-value" id="minutes">00</span>
+        <span class="time-label">Minutes</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section" id="progressSection">
+      <div class="progress-header">
+        <span>PROGRESS</span>
+        <span id="percentText">0.0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <div class="expired-message" id="expiredMessage">
+      Target Time Reached!
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const titleInput = document.getElementById('titleInput');
+    const pageTitle = document.getElementById('pageTitle');
+    const themeSelect = document.getElementById('themeSelect');
+    const startDateInput = document.getElementById('startDateInput');
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    
+    const countdownGrid = document.getElementById('countdownGrid');
+    const progressSection = document.getElementById('progressSection');
+    const progressBar = document.getElementById('progressBar');
+    const percentText = document.getElementById('percentText');
+    const expiredMessage = document.getElementById('expiredMessage');
+
+    // Toggle Settings Panel
+    settingsToggle.addEventListener('click', () => {
+      settingsPanel.classList.toggle('open');
+    });
+
+    // Theme Switcher Logic
+    function applyTheme(theme) {
+      document.body.className = '';
+      if (theme !== 'none') {
+        document.body.classList.add(`theme-${theme}`);
+      }
+    }
+
+    themeSelect.addEventListener('change', (e) => {
+      const selectedTheme = e.target.value;
+      applyTheme(selectedTheme);
+      localStorage.setItem('countdown_theme', selectedTheme);
+    });
+
+    // Default Dates Setup
+    const now = new Date();
+    const defaultStart = new Date(now);
+    const defaultTarget = new Date(now);
+    defaultTarget.setDate(defaultTarget.getDate() + 7);
+
+    startDateInput.value = defaultStart.toISOString().split('T')[0];
+    dateInput.value = defaultTarget.toISOString().split('T')[0];
+
+    // Local Storage Restoration
+    if (localStorage.getItem('countdown_title')) {
+      titleInput.value = localStorage.getItem('countdown_title');
+      pageTitle.textContent = titleInput.value;
+      document.title = titleInput.value;
+    }
+    if (localStorage.getItem('countdown_theme')) {
+      const savedTheme = localStorage.getItem('countdown_theme');
+      themeSelect.value = savedTheme;
+      applyTheme(savedTheme);
+    }
+    if (localStorage.getItem('countdown_start_date')) {
+      startDateInput.value = localStorage.getItem('countdown_start_date');
+    }
+    if (localStorage.getItem('countdown_date')) {
+      dateInput.value = localStorage.getItem('countdown_date');
+    }
+    if (localStorage.getItem('countdown_time')) {
+      timeInput.value = localStorage.getItem('countdown_time');
+    }
+
+    // Input Listeners
+    titleInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim() || 'Countdown Timer';
+      pageTitle.textContent = val;
+      document.title = val;
+      localStorage.setItem('countdown_title', e.target.value);
+    });
+
+    startDateInput.addEventListener('change', () => {
+      localStorage.setItem('countdown_start_date', startDateInput.value);
+      updateCountdown();
+    });
+
+    dateInput.addEventListener('change', () => {
+      localStorage.setItem('countdown_date', dateInput.value);
+      updateCountdown();
+    });
+
+    timeInput.addEventListener('change', () => {
+      localStorage.setItem('countdown_time', timeInput.value);
+      updateCountdown();
+    });
+
+    // Update Display Calculations
+    function updateCountdown() {
+      const selectedDate = dateInput.value;
+      const selectedTime = timeInput.value || "00:00";
+      const selectedStartDate = startDateInput.value;
+
+      if (!selectedDate) return;
+
+      const targetDateTime = new Date(`${selectedDate}T${selectedTime}:00`);
+      const current = new Date();
+      const diff = targetDateTime - current;
+
+      if (diff <= 0) {
+        countdownGrid.style.display = 'none';
+        progressSection.style.display = 'none';
+        expiredMessage.style.display = 'block';
+        return;
+      }
+
+      countdownGrid.style.display = 'grid';
+      progressSection.style.display = 'flex';
+      expiredMessage.style.display = 'none';
+
+      // Calculations
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+
+      daysEl.textContent = String(days).padStart(2, '0');
+      hoursEl.textContent = String(hours).padStart(2, '0');
+      minutesEl.textContent = String(minutes).padStart(2, '0');
+
+      // Percentage Calculation
+      if (selectedStartDate) {
+        const startDateTime = new Date(`${selectedStartDate}T00:00:00`);
+        const totalDuration = targetDateTime - startDateTime;
+        const elapsed = current - startDateTime;
+
+        if (totalDuration > 0) {
+          let percentage = (elapsed / totalDuration) * 100;
+          percentage = Math.max(0, Math.min(100, percentage));
+          
+          progressBar.style.width = `${percentage.toFixed(1)}%`;
+          percentText.textContent = `${percentage.toFixed(1)}%`;
+        }
+      }
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
