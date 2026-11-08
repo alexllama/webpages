@@ -353,7 +353,92 @@
         .almanac-container {
             display: flex;
             flex-direction: column;
-            gap: 2vh;
+            gap: 1.5vh;
+            height: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .sun-box {
+            background: rgba(0, 30, 80, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            font-family: 'VT323', monospace;
+            font-size: clamp(22px, 2.8vw, 40px);
+            flex-shrink: 0;
+        }
+
+        .sun-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sun-title { color: #ffff55; font-size: clamp(26px, 3.2vw, 46px); margin-bottom: 4px; }
+        .sun-val { color: #ffffff; }
+
+        .moon-box {
+            background: rgba(40, 40, 50, 0.9);
+            border: 4px solid #888;
+            border-radius: 10px;
+            padding: 12px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .moon-header {
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3.4vw, 48px);
+            color: #ffff55;
+            margin-bottom: 2px;
+            text-shadow: 3px 3px #000;
+        }
+
+        .moon-phases {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            align-items: center;
+        }
+
+        .moon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'VT323', monospace;
+            font-size: clamp(22px, 2.4vw, 36px);
+        }
+
+        .moon-icon {
+            width: clamp(45px, 5.5vw, 85px);
+            height: clamp(45px, 5.5vw, 85px);
+            border-radius: 50%;
+            background: #000;
+            border: 3px solid #ccc;
+            margin: 6px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255,255,255,0.25);
+            flex-shrink: 0;
+        }
+
+        .moon-icon.last { background: linear-gradient(90deg, #fff 50%, #000 50%); }
+        .moon-icon.new { background: #111; }
+        .moon-icon.first { background: linear-gradient(90deg, #000 50%, #fff 50%); }
+        .moon-icon.full { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* Ticker Bottom Bar */
+
             height: 100%;
         }
 
