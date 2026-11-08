@@ -182,8 +182,247 @@
             transition: opacity 0.4s ease-in-out;
             display: flex;
             flex-direction: column;
-            padding: 3vh 3vw;
+            padding: 2vh 2vw;
             pointer-events: none;
+        }
+
+        .display-page.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- PAGE 1: Today's Summary --- */
+        .summary-container {
+            display: flex;
+            gap: 2vw;
+            height: 100%;
+        }
+
+        .summary-left {
+            flex: 1;
+            background: rgba(0, 30, 90, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .temp-large {
+            font-family: 'VT323', monospace;
+            font-size: clamp(70px, 9.5vw, 130px);
+            color: #ffffff;
+            text-shadow: 5px 5px #000;
+            line-height: 0.9;
+        }
+
+        .condition-text {
+            font-family: 'VT323', monospace;
+            font-size: clamp(32px, 3.8vw, 54px);
+            color: #ffff55;
+            text-shadow: 3px 3px #000;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .summary-right {
+            flex: 1.2;
+            background: rgba(0, 30, 90, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 12px;
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .obs-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'VT323', monospace;
+            font-size: clamp(30px, 3.6vw, 48px);
+            border-bottom: 2px dashed rgba(255,255,255,0.25);
+            padding: 4px 0;
+        }
+
+        .obs-label { color: #ffff55; text-shadow: 2px 2px #000; }
+        .obs-val { color: #ffffff; text-shadow: 2px 2px #000; }
+
+        /* --- PAGE 2: 3-Day Forecast --- */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5vw;
+            height: 100%;
+            width: 100%;
+        }
+
+        .forecast-card {
+            background: linear-gradient(to bottom, #102a71, #1b4fb3);
+            border: 4px solid #5a99ff;
+            border-radius: 10px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 4px 4px 0px #000;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .forecast-day {
+            font-family: 'VT323', monospace;
+            font-size: clamp(32px, 3.5vw, 50px);
+            color: #ffff55;
+            text-shadow: 3px 3px #000;
+        }
+
+        .forecast-cond {
+            font-family: 'VT323', monospace;
+            font-size: clamp(22px, 2.2vw, 34px);
+            color: #ffffff;
+            text-shadow: 2px 2px #000;
+            text-align: center;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .forecast-hi-lo {
+            display: flex;
+            gap: 1.5vw;
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3vw, 44px);
+            text-shadow: 2px 2px #000;
+        }
+
+        .lo-val { color: #55ffff; }
+        .hi-val { color: #ff5555; }
+
+        /* --- PAGE 3: Regional Temps List --- */
+        .regional-table {
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 70, 0.9);
+            border: 4px solid #3c70d3;
+            border-radius: 10px;
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2.2fr 1.8fr 1fr;
+            font-family: 'VT323', monospace;
+            font-size: clamp(32px, 3.6vw, 50px);
+            color: #55ffff;
+            border-bottom: 3px solid #3c70d3;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .table-header span:last-child {
+            text-align: right;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2.2fr 1.8fr 1fr;
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3.1vw, 44px);
+            color: #ffffff;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            align-items: center;
+        }
+
+        .table-row span:last-child {
+            text-align: right;
+        }
+
+        .table-row:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- PAGE 4: Sun & Moon Almanac --- */
+        .almanac-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+            height: 100%;
+        }
+
+        .sun-box {
+            background: rgba(0, 30, 80, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            font-family: 'VT323', monospace;
+            font-size: clamp(24px, 2.8vw, 40px);
+        }
+
+        .sun-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sun-title { color: #ffff55; font-size: clamp(28px, 3.2vw, 46px); margin-bottom: 4px; }
+        .sun-val { color: #ffffff; }
+
+        .moon-box {
+            background: rgba(40, 40, 50, 0.9);
+            border: 4px solid #888;
+            border-radius: 10px;
+            padding: 15px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .moon-header {
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3.2vw, 46px);
+            color: #ffff55;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px #000;
+        }
+
+        .moon-phases {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .moon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'VT323', monospace;
+            font-size: clamp(22px, 2.4vw, 36px);
+        }
+
+        .moon-icon {
+            width: clamp(50px, 6vw, 85px);
+            height: clamp(50px, 6vw, 85px);
+            border-radius: 50%;
+            background: #000;
+            border: 3px solid #ccc;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(255,255,255,0.25);
         }
 
         .display-page.active {
@@ -455,15 +694,15 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* Canvas Weather Animated Graphics (100% Larger Sizes) */
+        /* Canvas Weather Animated Graphics */
         .weather-canvas-large {
-            width: clamp(400px, 44vw, 640px);
-            height: clamp(320px, 36vh, 520px);
+            width: clamp(220px, 26vw, 360px);
+            height: clamp(160px, 20vh, 260px);
         }
 
         .weather-canvas-forecast {
-            width: clamp(320px, 36vw, 500px);
-            height: clamp(260px, 28vh, 400px);
+            width: clamp(180px, 20vw, 280px);
+            height: clamp(140px, 16vh, 200px);
         }
     </style>
 </head>
