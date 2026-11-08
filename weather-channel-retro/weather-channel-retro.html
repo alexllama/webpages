@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Llama Weather - 90s Weather Channel Retro Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Clean Full-Screen Display Container (CRT Scanlines Removed) */
+        .crt-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #111, #000);
+            border: none;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        /* Screen Glass Base Styling */
+        .crt-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #000428;
+        }
+
+        /* Header (Scaled Sizes for Full Screen) */
+        .header {
+            height: 12vh;
+            min-height: 90px;
+            background: linear-gradient(to bottom, #ca5400, #f88c00 40%, #a23800);
+            border-bottom: 5px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2vw;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Weather Star / Llama Logo Box (Clickable) */
+        .logo-box {
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            height: 90%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .logo-box:hover {
+            transform: scale(1.03);
+        }
+
+        .logo-svg {
+            width: 160px;
+            height: 80px;
+            max-height: 100%;
+        }
+
+        .header-title-box {
+            display: flex;
+            flex-direction: column;
+            margin-left: 2vw;
+            flex-grow: 1;
+        }
+
+        .location-name {
+            font-family: 'VT323', monospace;
+            font-size: clamp(38px, 4.5vw, 65px);
+            color: #ffff55;
+            text-shadow: 4px 4px #000;
+            line-height: 0.9;
+        }
+
+        .page-title {
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3.2vw, 48px);
+            color: #ffffff;
+            text-shadow: 3px 3px #000;
+        }
+
+        .header-clock {
+            text-align: right;
+            font-family: 'VT323', monospace;
+            font-size: clamp(26px, 3vw, 42px);
+            color: #ffffff;
+            text-shadow: 3px 3px #000;
+            line-height: 1.1;
+        }
+
+        /* Pop-up City Search Bar (Triggered by Logo Click) */
+        .location-popover {
+            position: absolute;
+            top: 85px;
+            left: 15px;
+            background: #111d4a;
+            border: 3px solid #ffcc00;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 200;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+            transform: translateY(-150%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .location-popover.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .location-popover input {
+            padding: 6px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .location-popover button {
+            padding: 6px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            background: #2a4d8c;
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .location-popover button:hover {
+            background: #3b66b3;
+        }
+
+        /* Main Screen Body Dynamic Display Area */
+        .main-display {
+            flex-grow: 1;
+            position: relative;
+            background: linear-gradient(to bottom, #111d4a 0%, #1a2c6d 50%, #461f52 100%);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .display-page {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            padding: 3vh 3vw;
+            pointer-events: none;
+        }
+
+        .display-page.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- PAGE 1: Today's Summary (50% Enlarged Fonts) --- */
+        .summary-container {
+            display: flex;
+            gap: 3vw;
+            height: 100%;
+        }
+
+        .summary-left {
+            flex: 1;
+            background: rgba(0, 30, 90, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .temp-large {
+            font-family: 'VT323', monospace;
+            font-size: clamp(150px, 18vw, 270px);
+            color: #ffffff;
+            text-shadow: 6px 6px #000;
+            line-height: 0.85;
+        }
+
+        .condition-text {
+            font-family: 'VT323', monospace;
+            font-size: clamp(54px, 6vw, 84px);
+            color: #ffff55;
+            text-shadow: 3px 3px #000;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .summary-right {
+            flex: 1.2;
+            background: rgba(0, 30, 90, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .obs-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'VT323', monospace;
+            font-size: clamp(45px, 5.2vw, 75px);
+            border-bottom: 3px dashed rgba(255,255,255,0.25);
+            padding: 8px 0;
+        }
+
+        .obs-label { color: #ffff55; text-shadow: 3px 3px #000; }
+        .obs-val { color: #ffffff; text-shadow: 3px 3px #000; }
+
+        /* --- PAGE 2: 3-Day Forecast --- */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2vw;
+            height: 100%;
+        }
+
+        .forecast-card {
+            background: linear-gradient(to bottom, #102a71, #1b4fb3);
+            border: 4px solid #5a99ff;
+            border-radius: 10px;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        .forecast-day {
+            font-family: 'VT323', monospace;
+            font-size: clamp(40px, 4.5vw, 65px);
+            color: #ffff55;
+            text-shadow: 3px 3px #000;
+        }
+
+        .forecast-cond {
+            font-family: 'VT323', monospace;
+            font-size: clamp(28px, 3vw, 44px);
+            color: #ffffff;
+            text-shadow: 3px 3px #000;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .forecast-hi-lo {
+            display: flex;
+            gap: 2vw;
+            font-family: 'VT323', monospace;
+            font-size: clamp(34px, 3.8vw, 56px);
+            text-shadow: 3px 3px #000;
+        }
+
+        .lo-val { color: #55ffff; }
+        .hi-val { color: #ff5555; }
+
+        /* --- PAGE 3: Regional Temps List --- */
+        .regional-table {
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 70, 0.9);
+            border: 4px solid #3c70d3;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2.2fr 1.8fr 1fr;
+            font-family: 'VT323', monospace;
+            font-size: clamp(38px, 4.5vw, 62px);
+            color: #55ffff;
+            border-bottom: 4px solid #3c70d3;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .table-header span:last-child {
+            text-align: right;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2.2fr 1.8fr 1fr;
+            font-family: 'VT323', monospace;
+            font-size: clamp(36px, 4.1vw, 55px);
+            color: #ffffff;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            align-items: center;
+        }
+
+        .table-row span:last-child {
+            text-align: right;
+        }
+
+        .table-row:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- PAGE 4: Sun & Moon Almanac --- */
+        .almanac-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3vh;
+            height: 100%;
+        }
+
+        .sun-box {
+            background: rgba(0, 30, 80, 0.85);
+            border: 4px solid #4a90e2;
+            border-radius: 10px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            font-family: 'VT323', monospace;
+            font-size: clamp(30px, 3.5vw, 48px);
+        }
+
+        .sun-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sun-title { color: #ffff55; font-size: clamp(34px, 4vw, 54px); margin-bottom: 8px; }
+        .sun-val { color: #ffffff; }
+
+        .moon-box {
+            background: rgba(40, 40, 50, 0.9);
+            border: 4px solid #888;
+            border-radius: 10px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .moon-header {
+            font-family: 'VT323', monospace;
+            font-size: clamp(34px, 4vw, 54px);
+            color: #ffff55;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px #000;
+        }
+
+        .moon-phases {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .moon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'VT323', monospace;
+            font-size: clamp(26px, 3vw, 42px);
+        }
+
+        .moon-icon {
+            width: clamp(70px, 8vw, 110px);
+            height: clamp(70px, 8vw, 110px);
+            border-radius: 50%;
+            background: #000;
+            border: 3px solid #ccc;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255,255,255,0.25);
+        }
+
+        .moon-icon.last { background: linear-gradient(90deg, #fff 50%, #000 50%); }
+        .moon-icon.new { background: #111; }
+        .moon-icon.first { background: linear-gradient(90deg, #000 50%, #fff 50%); }
+        .moon-icon.full { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* Ticker Bottom Bar */
+        .ticker-bar {
+            height: 8vh;
+            min-height: 60px;
+            background: linear-gradient(to bottom, #880000, #cc0000 50%, #660000);
+            border-top: 5px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .ticker-text {
+            font-family: 'VT323', monospace;
+            font-size: clamp(30px, 3.6vw, 52px);
+            color: #ffffff;
+            text-shadow: 3px 3px #000;
+            white-space: nowrap;
+            animation: ticker 24s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Canvas Weather Animated Graphics (100% Larger Sizes) */
+        .weather-canvas-large {
+            width: clamp(400px, 44vw, 640px);
+            height: clamp(320px, 36vh, 520px);
+        }
+
+        .weather-canvas-forecast {
+            width: clamp(320px, 36vw, 500px);
+            height: clamp(260px, 28vh, 400px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crt-container">
+        <div class="crt-screen">
+            <!-- Header -->
+            <div class="header">
+                <!-- Recreated Classic Weather Channel Style Logo SVG -->
+                <div class="logo-box" id="btnLogo" title="Click to Change Location">
+                    <svg class="logo-svg" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="5" width="190" height="150" rx="36" ry="36" fill="#000000"/>
+                        <rect x="11" y="11" width="178" height="138" rx="30" ry="30" fill="#ffffff"/>
+                        <rect x="18" y="18" width="164" height="124" rx="23" ry="23" fill="url(#twcGradient)"/>
+                        <defs>
+                            <linearGradient id="twcGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#000638"/>
+                                <stop offset="50%" stop-color="#001a88"/>
+                                <stop offset="100%" stop-color="#054bdf"/>
+                            </linearGradient>
+                        </defs>
+                        <text x="100" y="54" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="34" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">THE</text>
+                        <text x="100" y="93" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="28" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">WEATHER</text>
+                        <text x="100" y="128" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="28" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">CHANNEL</text>
+                    </svg>
+                </div>
+
+                <div class="header-title-box">
+                    <div class="location-name" id="hdrLocation">HAMLIN, NY</div>
+                    <div class="page-title" id="hdrPageTitle">Current Conditions</div>
+                </div>
+                <div class="header-clock" id="hdrClock">
+                    12:58:30 PM<br>WED JUN 25
+                </div>
+            </div>
+
+            <!-- Pop-over location change UI accessible via logo click -->
+            <div class="location-popover" id="locationPopover">
+                <input type="text" id="cityInput" placeholder="Enter City (e.g. Hamlin, NY)" value="Hamlin, NY">
+                <button id="btnSearch">GO</button>
+                <button id="btnGeo">Detect GPS</button>
+            </div>
+
+            <!-- Main Display Area -->
+            <div class="main-display">
+
+                <!-- Page 1: Today's Summary -->
+                <div class="display-page active" id="page-summary">
+                    <div class="summary-container">
+                        <div class="summary-left">
+                            <div class="temp-large" id="sumTemp">84°</div>
+                            <div class="condition-text" id="sumCond">Partly Cloudy</div>
+                            <canvas class="weather-canvas-large" id="canvas-summary" width="440" height="360"></canvas>
+                        </div>
+                        <div class="summary-right">
+                            <div class="obs-row"><span class="obs-label">Humidity:</span><span class="obs-val" id="sumHumidity">58%</span></div>
+                            <div class="obs-row"><span class="obs-label">Dewpoint:</span><span class="obs-val" id="sumDew">68°</span></div>
+                            <div class="obs-row"><span class="obs-label">Ceiling:</span><span class="obs-val" id="sumCeiling">3600ft</span></div>
+                            <div class="obs-row"><span class="obs-label">Visibility:</span><span class="obs-val" id="sumVis">10 mi.</span></div>
+                            <div class="obs-row"><span class="obs-label">Wind:</span><span class="obs-val" id="sumWind">WNW 3 mph</span></div>
+                            <div class="obs-row"><span class="obs-label">Pressure:</span><span class="obs-val" id="sumPress">30.25 in</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2: 3-Day Forecast -->
+                <div class="display-page" id="page-forecast">
+                    <div class="forecast-grid">
+                        <div class="forecast-card">
+                            <div class="forecast-day" id="day1-name">FRI</div>
+                            <canvas class="weather-canvas-forecast" id="canvas-day1" width="360" height="280"></canvas>
+                            <div class="forecast-cond" id="day1-cond">Scattered T'Storms</div>
+                            <div class="forecast-hi-lo">
+                                <div>LO <span class="lo-val" id="day1-lo">75</span></div>
+                                <div>HI <span class="hi-val" id="day1-hi">91</span></div>
+                            </div>
+                        </div>
+                        <div class="forecast-card">
+                            <div class="forecast-day" id="day2-name">SAT</div>
+                            <canvas class="weather-canvas-forecast" id="canvas-day2" width="360" height="280"></canvas>
+                            <div class="forecast-cond" id="day2-cond">Isolated T'Storms</div>
+                            <div class="forecast-hi-lo">
+                                <div>LO <span class="lo-val" id="day2-lo">75</span></div>
+                                <div>HI <span class="hi-val" id="day2-hi">91</span></div>
+                            </div>
+                        </div>
+                        <div class="forecast-card">
+                            <div class="forecast-day" id="day3-name">SUN</div>
+                            <canvas class="weather-canvas-forecast" id="canvas-day3" width="360" height="280"></canvas>
+                            <div class="forecast-cond" id="day3-cond">Mostly Sunny</div>
+                            <div class="forecast-hi-lo">
+                                <div>LO <span class="lo-val" id="day3-lo">73</span></div>
+                                <div>HI <span class="hi-val" id="day3-hi">89</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3: Regional Temps List -->
+                <div class="display-page" id="page-reg-list">
+                    <div class="regional-table">
+                        <div class="table-header">
+                            <span>CITY</span>
+                            <span>WEATHER</span>
+                            <span>°F</span>
+                        </div>
+                        <div id="regionalListRows">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 4: Sun & Moon Info -->
+                <div class="display-page" id="page-almanac">
+                    <div class="almanac-container">
+                        <div class="sun-box">
+                            <div class="sun-col">
+                                <span class="sun-title">Sun</span>
+                                <span class="sun-val">Sunrise:</span>
+                                <span class="sun-val">Sunset:</span>
+                            </div>
+                            <div class="sun-col">
+                                <span class="sun-title">Today</span>
+                                <span class="sun-val" id="sunRiseToday">6:36 AM</span>
+                                <span class="sun-val" id="sunSetToday">7:22 PM</span>
+                            </div>
+                            <div class="sun-col">
+                                <span class="sun-title">Tomorrow</span>
+                                <span class="sun-val" id="sunRiseTom">6:34 AM</span>
+                                <span class="sun-val" id="sunSetTom">7:24 PM</span>
+                            </div>
+                        </div>
+                        <div class="moon-box">
+                            <div class="moon-header">Moon Data</div>
+                            <div class="moon-phases">
+                                <div class="moon-item">
+                                    <span>Last</span>
+                                    <div class="moon-icon last"></div>
+                                    <span id="moonLastDate">Apr 10</span>
+                                </div>
+                                <div class="moon-item">
+                                    <span>New</span>
+                                    <div class="moon-icon new"></div>
+                                    <span id="moonNewDate">Apr 17</span>
+                                </div>
+                                <div class="moon-item">
+                                    <span>First</span>
+                                    <div class="moon-icon first"></div>
+                                    <span id="moonFirstDate">Apr 23</span>
+                                </div>
+                                <div class="moon-item">
+                                    <span>Full</span>
+                                    <div class="moon-icon full"></div>
+                                    <span id="moonFullDate">May 1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Ticker (Red Header Box Removed) -->
+            <div class="ticker-bar">
+                <div class="ticker-text" id="tickerMsg">
+                    FETCHING LATEST LOCAL ALERTS AND REGIONAL CONDITIONS...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State
+        let weatherData = null;
+        let currentPageIndex = 0;
+        let cycleInterval = null;
+
+        const pages = [
+            { id: 'page-summary', title: 'Current Conditions' },
+            { id: 'page-forecast', title: 'Extended Forecast' },
+            { id: 'page-reg-list', title: 'Regional Observations' },
+            { id: 'page-almanac', title: 'Almanac & Moon Data' }
+        ];
+
+        // Default Hamlin, NY Fallback
+        const demoData = {
+            city: "HAMLIN, NY",
+            temp: 52,
+            condition: "Partly Cloudy",
+            humidity: "62%",
+            dewpoint: "42°",
+            ceiling: "4500ft",
+            visibility: "10 mi.",
+            wind: "WNW 8 MPH",
+            pressure: "30.15",
+            sunrise: "6:48 AM",
+            sunset: "5:02 PM",
+            alertText: "LOCAL BULLETIN FOR HAMLIN, NY... FAIR CONDITIONS ACROSS LAKE ONTARIO REGION TODAY... NO ACTIVE WEATHER ADVISORIES ISSUED...",
+            forecast: [
+                { day: "MON", cond: "Partly Cloudy", lo: 42, hi: 55, code: "sun-cloud" },
+                { day: "TUE", cond: "Showers", lo: 40, hi: 50, code: "rain" },
+                { day: "WED", cond: "Mostly Sunny", lo: 38, hi: 52, code: "sun" }
+            ],
+            regional: [
+                { name: "HAMLIN, NY", cond: "P CLOUDY", temp: 52 },
+                { name: "ROCHESTER, NY", cond: "P CLOUDY", temp: 53 },
+                { name: "BUFFALO, NY", cond: "P CLOUDY", temp: 51 },
+                { name: "SYRACUSE, NY", cond: "CLEAR", temp: 49 },
+                { name: "ALBANY, NY", cond: "CLEAR", temp: 48 },
+                { name: "BINGHAMTON, NY", cond: "P CLOUDY", temp: 46 },
+                { name: "TORONTO, ON", cond: "M CLOUDY", temp: 50 }
+            ],
+            mapCities: [
+                { name: "Hamlin", temp: 52, x: 0.70, y: 0.30 },
+                { name: "Rochester", temp: 53, x: 0.74, y: 0.33 },
+                { name: "Buffalo", temp: 51, x: 0.67, y: 0.35 },
+                { name: "Syracuse", temp: 49, x: 0.79, y: 0.34 },
+                { name: "Albany", temp: 48, x: 0.85, y: 0.38 },
+                { name: "Erie", temp: 50, x: 0.62, y: 0.39 }
+            ]
+        };
+
+        // Real Weather Fetcher via Open-Meteo & Nominatim
+        async function fetchWeather(lat, lon, cityName) {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset&hourly=relativehumidity_2m,dewpoint_2m,surface_pressure,visibility&timezone=auto`);
+                const data = await res.json();
+                
+                const current = data.current_weather;
+                const daily = data.daily;
+                
+                const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+                const todayIdx = new Date().getDay();
+
+                let alertText = `LOCAL FORECAST FOR ${cityName.toUpperCase()}... CONDITIONS CURRENTLY ${decodeWeatherCode(current.weathercode).toUpperCase()} WITH TEMPERATURE OF ${Math.round((current.temperature * 9/5) + 32)} DEGREES... NO SEVERE WEATHER WARNINGS IN EFFECT...`;
+
+                try {
+                    const alertRes = await fetch(`https://api.weather.gov/alerts/active?point=${lat.toFixed(4)},${lon.toFixed(4)}`);
+                    if (alertRes.ok) {
+                        const alertData = await alertRes.json();
+                        if (alertData.features && alertData.features.length > 0) {
+                            const mainAlert = alertData.features[0].properties;
+                            alertText = `*** ${(mainAlert.event || "WEATHER ALERT").toUpperCase()} *** ${mainAlert.headline || mainAlert.description || ''}`.toUpperCase();
+                        }
+                    }
+                } catch(err) {
+                    console.log("No NWS alert endpoint reachable.");
+                }
+
+                weatherData = {
+                    city: cityName.toUpperCase(),
+                    temp: Math.round((current.temperature * 9/5) + 32),
+                    condition: decodeWeatherCode(current.weathercode),
+                    humidity: Math.round(data.hourly.relativehumidity_2m[0]) + "%",
+                    dewpoint: Math.round((data.hourly.dewpoint_2m[0] * 9/5) + 32) + "°",
+                    ceiling: "3500ft",
+                    visibility: Math.round(data.hourly.visibility[0] / 1609.34) + " mi.",
+                    wind: `${getWindDirection(current.winddirection)} ${Math.round(current.windspeed * 0.621371)} MPH`,
+                    pressure: (data.hourly.surface_pressure[0] * 0.02953).toFixed(2),
+                    sunrise: formatTime(daily.sunrise[0]),
+                    sunset: formatTime(daily.sunset[0]),
+                    alertText: alertText,
+                    forecast: [
+                        {
+                            day: days[(todayIdx + 1) % 7],
+                            cond: decodeWeatherCode(daily.weathercode[1]),
+                            lo: Math.round((daily.temperature_2m_min[1] * 9/5) + 32),
+                            hi: Math.round((daily.temperature_2m_max[1] * 9/5) + 32)
+                        },
+                        {
+                            day: days[(todayIdx + 2) % 7],
+                            cond: decodeWeatherCode(daily.weathercode[2]),
+                            lo: Math.round((daily.temperature_2m_min[2] * 9/5) + 32),
+                            hi: Math.round((daily.temperature_2m_max[2] * 9/5) + 32)
+                        },
+                        {
+                            day: days[(todayIdx + 3) % 7],
+                            cond: decodeWeatherCode(daily.weathercode[3]),
+                            lo: Math.round((daily.temperature_2m_min[3] * 9/5) + 32),
+                            hi: Math.round((daily.temperature_2m_max[3] * 9/5) + 32)
+                        }
+                    ],
+                    regional: demoData.regional,
+                    mapCities: demoData.mapCities
+                };
+                updateUI();
+            } catch (e) {
+                console.warn("Weather API failed, defaulting to demo data", e);
+                weatherData = demoData;
+                weatherData.city = cityName.toUpperCase();
+                updateUI();
+            }
+        }
+
+        async function geocodeAndFetch(city) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`);
+                const results = await res.json();
+                if (results.length > 0) {
+                    const place = results[0];
+                    const parts = place.display_name.split(',');
+                    const name = parts[0] + ", " + (parts[2] || parts[1] || "").trim();
+                    fetchWeather(place.lat, place.lon, name);
+                } else {
+                    fetchWeather(43.3242, -77.9250, "Hamlin, NY");
+                }
+            } catch (e) {
+                fetchWeather(43.3242, -77.9250, "Hamlin, NY");
+            }
+        }
+
+        function decodeWeatherCode(code) {
+            if (code === 0) return "Clear";
+            if (code <= 3) return "Partly Cloudy";
+            if (code <= 48) return "Foggy";
+            if (code <= 67) return "Rainy";
+            if (code <= 77) return "Snowy";
+            if (code <= 99) return "Thunderstorms";
+            return "Fair";
+        }
+
+        function getWindDirection(deg) {
+            const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            return dirs[Math.round(deg / 22.5) % 16];
+        }
+
+        function formatTime(isoStr) {
+            if (!isoStr) return "6:48 AM";
+            const date = new Date(isoStr);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Clock Update
+        function updateClock() {
+            const now = new Date();
+            const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStr = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}`;
+            
+            document.getElementById('hdrClock').innerHTML = `${timeStr}<br>${dateStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // UI Renderer
+        function updateUI() {
+            if (!weatherData) weatherData = demoData;
+
+            document.getElementById('hdrLocation').innerText = weatherData.city;
+            document.getElementById('sumTemp').innerText = weatherData.temp + "°";
+            document.getElementById('sumCond').innerText = weatherData.condition;
+            document.getElementById('sumHumidity').innerText = weatherData.humidity;
+            document.getElementById('sumDew').innerText = weatherData.dewpoint;
+            document.getElementById('sumCeiling').innerText = weatherData.ceiling;
+            document.getElementById('sumVis').innerText = weatherData.visibility;
+            document.getElementById('sumWind').innerText = weatherData.wind;
+            document.getElementById('sumPress').innerText = weatherData.pressure + " in";
+
+            document.getElementById('sunRiseToday').innerText = weatherData.sunrise;
+            document.getElementById('sunSetToday').innerText = weatherData.sunset;
+
+            document.getElementById('tickerMsg').innerText = weatherData.alertText || "LOCAL WEATHER STAR 4000 REPORTING...";
+
+            // Render 3-Day Forecast
+            for(let i=0; i<3; i++) {
+                const fc = weatherData.forecast[i];
+                document.getElementById(`day${i+1}-name`).innerText = fc.day;
+                document.getElementById(`day${i+1}-cond`).innerText = fc.cond;
+                document.getElementById(`day${i+1}-lo`).innerText = fc.lo;
+                document.getElementById(`day${i+1}-hi`).innerText = fc.hi;
+                drawRetroIcon(`canvas-day${i+1}`, fc.cond);
+            }
+            drawRetroIcon('canvas-summary', weatherData.condition);
+
+            // Render Aligned Regional List
+            const listEl = document.getElementById('regionalListRows');
+            listEl.innerHTML = '';
+            weatherData.regional.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `<span>${item.name}</span><span>${item.cond}</span><span>${item.temp}</span>`;
+                listEl.appendChild(row);
+            });
+        }
+
+        // Dynamic Moon Phase Dates Calculation
+        function updateMoonPhases() {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const now = new Date();
+            const synodicMonth = 29.53058770576; // Days per lunar month
+            
+            // Known New Moon reference: Jan 11, 2024, 11:57 UTC
+            const refNewMoon = new Date(Date.UTC(2024, 0, 11, 11, 57));
+            const daysSinceRef = (now.getTime() - refNewMoon.getTime()) / (1000 * 60 * 60 * 24);
+            const currentCycleProgress = (daysSinceRef % synodicMonth) / synodicMonth;
+
+            // Approximate offset days for primary phases relative to current moment
+            const phases = [
+                { id: 'moonLastDate', targetFraction: 0.75 },
+                { id: 'moonNewDate', targetFraction: 0.0 },
+                { id: 'moonFirstDate', targetFraction: 0.25 },
+                { id: 'moonFullDate', targetFraction: 0.5 }
+            ];
+
+            phases.forEach(p => {
+                let diffFrac = p.targetFraction - currentCycleProgress;
+                if (diffFrac < -0.5) diffFrac += 1;
+                if (diffFrac > 0.5) diffFrac -= 1;
+                
+                const phaseDate = new Date(now.getTime() + diffFrac * synodicMonth * 24 * 60 * 60 * 1000);
+                const dateStr = `${months[phaseDate.getMonth()]} ${phaseDate.getDate()}`;
+                const el = document.getElementById(p.id);
+                if (el) el.innerText = dateStr;
+            });
+        }
+
+        // Clean 90s Weather Star 4000 Styled Graphics Renderer (No Outlines, Double Size)
+        function drawRetroIcon(canvasId, cond) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cLower = cond.toLowerCase();
+            const isStorm = cLower.includes('storm') || cLower.includes('t\'storm');
+            const isRain = cLower.includes('rain') || cLower.includes('shower');
+            const isCloudy = cLower.includes('cloud') || isStorm || isRain;
+            const isSunny = cLower.includes('sun') || cLower.includes('clear') || cLower.includes('fair') || isCloudy;
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2 - 10;
+            const sunRadius = canvasId === 'canvas-summary' ? 68 : 52;
+
+            // 1. Render Sun Graphic (Filled disc + line rays, no black outlines)
+            if (isSunny) {
+                const sunX = isCloudy ? cx - (canvasId === 'canvas-summary' ? 42 : 32) : cx;
+                const sunY = isCloudy ? cy - (canvasId === 'canvas-summary' ? 34 : 26) : cy;
+
+                // Radiant Sun Line Rays
+                ctx.strokeStyle = '#ffcc00';
+                ctx.lineWidth = canvasId === 'canvas-summary' ? 10 : 8;
+                ctx.lineCap = 'round';
+                const rayInner = sunRadius + (canvasId === 'canvas-summary' ? 10 : 8);
+                const rayOuter = rayInner + (canvasId === 'canvas-summary' ? 22 : 16);
+
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * Math.PI) / 6;
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        sunX + Math.cos(angle) * rayInner,
+                        sunY + Math.sin(angle) * rayInner
+                    );
+                    ctx.lineTo(
+                        sunX + Math.cos(angle) * rayOuter,
+                        sunY + Math.sin(angle) * rayOuter
+                    );
+                    ctx.stroke();
+                }
+
+                // Sun Core Disc
+                ctx.fillStyle = '#ffcc00';
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 2. Render Seamless Retro Puffy Clouds (Filled layers without inner/outer strokes)
+            if (isCloudy) {
+                const cloudX = isSunny ? cx + 20 : cx;
+                const cloudY = isSunny ? cy + 24 : cy;
+                const scale = canvasId === 'canvas-summary' ? 2.2 : 1.7;
+
+                const traceUnifiedCloudPath = () => {
+                    ctx.beginPath();
+                    ctx.arc(cloudX - 26 * scale, cloudY + 8 * scale, 22 * scale, Math.PI * 0.75, Math.PI * 1.6);
+                    ctx.arc(cloudX - 4 * scale, cloudY - 12 * scale, 28 * scale, Math.PI * 0.95, Math.PI * 0.1);
+                    ctx.arc(cloudX + 22 * scale, cloudY + 6 * scale, 20 * scale, Math.PI * 1.3, Math.PI * 0.4);
+                    ctx.lineTo(cloudX - 35 * scale, cloudY + 24 * scale);
+                    ctx.closePath();
+                };
+
+                // Shadow Back Layer
+                ctx.save();
+                ctx.translate(8, 10);
+                ctx.fillStyle = '#758db2';
+                traceUnifiedCloudPath();
+                ctx.fill();
+                ctx.restore();
+
+                // Main White Front Layer
+                ctx.fillStyle = '#ffffff';
+                traceUnifiedCloudPath();
+                ctx.fill();
+            }
+
+            // 3. Render 90s Jagged Thunderstorm Lightning Bolt
+            if (isStorm) {
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.moveTo(cx + 4, cy + 36);
+                ctx.lineTo(cx - 20, cy + 72);
+                ctx.lineTo(cx - 4, cy + 72);
+                ctx.lineTo(cx - 28, cy + 112);
+                ctx.lineTo(cx + 16, cy + 64);
+                ctx.lineTo(cx, cy + 64);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // 4. Render Rain Drops
+            if (isRain && !isStorm) {
+                ctx.strokeStyle = '#55ffff';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                for (let i = -1; i <= 1; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(cx + (i * 40), cy + 60);
+                    ctx.lineTo(cx + (i * 40) - 16, cy + 92);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Page Carousel Navigation
+        function showPage(index) {
+            pages.forEach((p, idx) => {
+                const pageEl = document.getElementById(p.id);
+                if (idx === index) {
+                    pageEl.classList.add('active');
+                    document.getElementById('hdrPageTitle').innerText = p.title;
+                } else {
+                    pageEl.classList.remove('active');
+                }
+            });
+        }
+
+        function nextPage() {
+            currentPageIndex = (currentPageIndex + 1) % pages.length;
+            showPage(currentPageIndex);
+        }
+
+        function resetCycleTimer() {
+            if (cycleInterval) clearInterval(cycleInterval);
+            cycleInterval = setInterval(nextPage, 15000);
+        }
+
+        function startCycle() {
+            resetCycleTimer();
+        }
+
+        // Click Anywhere on Screen to Advance Page
+        document.querySelector('.crt-screen').addEventListener('click', (evt) => {
+            // Ignore clicks if user clicked inside the location popover or logo button
+            if (evt.target.closest('#locationPopover') || evt.target.closest('#btnLogo')) {
+                return;
+            }
+            nextPage();
+            resetCycleTimer();
+        });
+
+        // Logo click pop-over listener
+        document.getElementById('btnLogo').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const popover = document.getElementById('locationPopover');
+            popover.classList.toggle('open');
+        });
+
+        document.getElementById('btnSearch').addEventListener('click', () => {
+            const city = document.getElementById('cityInput').value;
+            if (city) {
+                geocodeAndFetch(city);
+                document.getElementById('locationPopover').classList.remove('open');
+            }
+        });
+
+        document.getElementById('btnGeo').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        fetchWeather(pos.coords.latitude, pos.coords.longitude, "Local Weather");
+                        document.getElementById('locationPopover').classList.remove('open');
+                    },
+                    err => geocodeAndFetch("Hamlin, NY")
+                );
+            }
+        });
+
+        // Initialize moon data & load initial weather for Hamlin, NY
+        updateMoonPhases();
+        geocodeAndFetch("Hamlin, NY");
+        startCycle();
+    </script>
+</body>
+</html>
