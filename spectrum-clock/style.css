@@ -1,0 +1,114 @@
+:root {
+    --cell-h: clamp(20px, 5.5vh, 56px);
+    --bar-w: clamp(40px, 6.5vw, 120px);
+    --bar-h: calc(var(--cell-h) - 6px);
+    --legend-w: clamp(20px, 2.6vw, 48px);
+    --col-gap: clamp(6px, 1.2vw, 20px);
+    --group-gap: clamp(18px, 3vw, 56px);
+    --font-size: clamp(10px, 1.2vw, 20px);
+    --pad: clamp(12px, 2vw, 36px);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: var(--pad);
+    font-family: Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.clock-container {
+    background-color: #111;
+    cursor: pointer; /* Click anywhere on the clock to start VU mode */
+    border-radius: calc(var(--pad) * 0.6);
+    padding: var(--pad);
+    box-shadow: 0 0 calc(var(--pad) * 1.5) rgba(0, 255, 255, 0.5);
+}
+
+.spectrum-clock {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end; /* Line the time and date columns up at the bottom */
+    gap: var(--group-gap);
+}
+
+.bars,
+.date-display {
+    display: flex;
+    gap: var(--col-gap);
+}
+
+.bar-group {
+    display: flex;
+    flex-direction: column-reverse; /* Cells fill up from the bottom */
+    height: calc(12 * var(--cell-h));
+}
+
+.bar-item {
+    display: flex;
+    align-items: center;
+    height: var(--cell-h);
+}
+
+.bar-group .light {
+    width: var(--bar-w);
+    height: var(--bar-h);
+    background-color: #333;
+    border-radius: clamp(2px, 0.4vw, 6px);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.legend {
+    color: #888;
+    font-size: var(--font-size);
+    width: var(--legend-w);
+    text-align: center;
+    display: inline-block;
+}
+
+.legend.right {
+    margin-left: calc(var(--col-gap) / 2);
+}
+
+/* Lit states */
+.light.on {
+    background-color: #0ff; /* Cyan light */
+    box-shadow: 0 0 clamp(6px, 1vw, 16px) #0ff;
+}
+
+/* VU mode: green at the bottom, amber through the middle, red at the top */
+.light.on.band-green {
+    background-color: #00ff66;
+    box-shadow: 0 0 clamp(6px, 1vw, 16px) #00ff66;
+}
+
+.light.on.band-amber {
+    background-color: #ffb000;
+    box-shadow: 0 0 clamp(6px, 1vw, 16px) #ffb000;
+}
+
+.light.on.band-red {
+    background-color: #ff2d2d;
+    box-shadow: 0 0 clamp(6px, 1vw, 16px) #ff2d2d;
+}
+
+/* VU mode hits harder: brighter glow, snappier on/off response */
+.clock-container.vu-mode {
+    box-shadow: 0 0 calc(var(--pad) * 2) rgba(0, 255, 102, 0.35);
+}
+
+.clock-container.vu-mode .light {
+    transition-duration: 0.06s;
+}
+
+.clock-container.vu-mode .light.on {
+    filter: brightness(1.3) saturate(1.2);
+}

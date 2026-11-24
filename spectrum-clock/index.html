@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectrum Clock</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="clock-container">
+        <div class="spectrum-clock">
+            <!-- Time section: hours, 5-minute marks, single minutes, AM/PM -->
+            <section class="time-section">
+                <div class="bars">
+                    <!-- Hour Bars -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="h1"></div>
+                            <span class="legend right">1</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h2"></div>
+                            <span class="legend right">2</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h3"></div>
+                            <span class="legend right">3</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h4"></div>
+                            <span class="legend right">4</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h5"></div>
+                            <span class="legend right">5</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h6"></div>
+                            <span class="legend right">6</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h7"></div>
+                            <span class="legend right">7</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h8"></div>
+                            <span class="legend right">8</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h9"></div>
+                            <span class="legend right">9</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h10"></div>
+                            <span class="legend right">10</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h11"></div>
+                            <span class="legend right">11</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="h12"></div>
+                            <span class="legend right">12</span>
+                        </div>
+                    </div>
+                    <!-- 5-Minute Bars -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="m5"></div>
+                            <span class="legend right">05</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m10"></div>
+                            <span class="legend right">10</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m15"></div>
+                            <span class="legend right">15</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m20"></div>
+                            <span class="legend right">20</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m25"></div>
+                            <span class="legend right">25</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m30"></div>
+                            <span class="legend right">30</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m35"></div>
+                            <span class="legend right">35</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m40"></div>
+                            <span class="legend right">40</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m45"></div>
+                            <span class="legend right">45</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m50"></div>
+                            <span class="legend right">50</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m55"></div>
+                            <span class="legend right">55</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="m60"></div>
+                            <span class="legend right">60</span>
+                        </div>
+                    </div>
+                    <!-- Single-Minute Bars: 3 cells per minute -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="s-min-1"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-2"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-3"></div>
+                            <span class="legend right">1</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-4"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-5"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-6"></div>
+                            <span class="legend right">2</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-7"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-8"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-9"></div>
+                            <span class="legend right">3</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-10"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-11"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="s-min-12"></div>
+                            <span class="legend right">4</span>
+                        </div>
+                    </div>
+                    <!-- AM/PM Bars: bottom 6 = AM, all 12 = PM -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="ap-1"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-2"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-3"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-4"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-5"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-6"></div>
+                            <span class="legend right">AM</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-7"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-8"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-9"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-10"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-11"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="ap-12"></div>
+                            <span class="legend right">PM</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Date section: month, day tens, day units -->
+            <section class="date-section">
+                <div class="date-display">
+                    <!-- Month Bars -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="mth1"></div>
+                            <span class="legend right">1</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth2"></div>
+                            <span class="legend right">2</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth3"></div>
+                            <span class="legend right">3</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth4"></div>
+                            <span class="legend right">4</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth5"></div>
+                            <span class="legend right">5</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth6"></div>
+                            <span class="legend right">6</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth7"></div>
+                            <span class="legend right">7</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth8"></div>
+                            <span class="legend right">8</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth9"></div>
+                            <span class="legend right">9</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth10"></div>
+                            <span class="legend right">10</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth11"></div>
+                            <span class="legend right">11</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="mth12"></div>
+                            <span class="legend right">12</span>
+                        </div>
+                    </div>
+                    <!-- Day Tens Bars -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="dayT0"></div>
+                            <span class="legend right">0</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT1"></div>
+                            <span class="legend right">1</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT2"></div>
+                            <span class="legend right">2</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT3"></div>
+                            <span class="legend right">3</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy1"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy2"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy3"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy4"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy5"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy6"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy7"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayT-dummy8"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                    </div>
+                    <!-- Day Units Bars -->
+                    <div class="bar-group">
+                        <div class="bar-item">
+                            <div class="light" id="dayU9"></div>
+                            <span class="legend right">0</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU8"></div>
+                            <span class="legend right">1</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU7"></div>
+                            <span class="legend right">2</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU6"></div>
+                            <span class="legend right">3</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU5"></div>
+                            <span class="legend right">4</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU4"></div>
+                            <span class="legend right">5</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU3"></div>
+                            <span class="legend right">6</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU2"></div>
+                            <span class="legend right">7</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU1"></div>
+                            <span class="legend right">8</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU0"></div>
+                            <span class="legend right">9</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU-dummy1"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                        <div class="bar-item">
+                            <div class="light" id="dayU-dummy2"></div>
+                            <span class="legend right">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
